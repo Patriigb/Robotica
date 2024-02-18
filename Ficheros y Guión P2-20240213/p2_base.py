@@ -4,7 +4,34 @@ import argparse
 import numpy as np
 import time
 from Robot import Robot
+import matplotlib.pyplot as plt
+import os
 
+def plot(robot):
+    # Leer el archivo y extraer los datos
+    timestamps = []
+    x_coords = []
+    y_coords = []
+
+    with open(robot.log_file, 'r') as file:
+        for line in file:
+            parts = line.split()
+            timestamps.append(float(parts[0]))
+            x_coords.append(float(parts[1]))
+            y_coords.append(float(parts[2]))
+
+    # Trazar el recorrido
+    plt.figure(figsize=(8, 6))
+    plt.plot(x_coords, y_coords, marker='o', linestyle='-')
+    plt.title('Recorrido del Robot')
+    plt.xlabel('Coordenada X')
+    plt.ylabel('Coordenada Y')
+    plt.grid(True)
+
+    # Guardar el gráfico en un archivo
+    ruta, _ = os.path.splitext(robot.log_file)  # Separa la ruta y la extensión del archivo
+    plot_file = ruta + ".png"  # Cambia la extensión a .png
+    plt.savefig(plot_file)  # Cambia el nombre del archivo según lo desees
 
 def main(args):
     try:

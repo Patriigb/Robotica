@@ -31,6 +31,10 @@ class Robot:
         self.r =
         self.L =
 
+        self.enc_d = None
+        self.enc_i = None
+        
+        self.log_file = None
         ##################################################
         # Motors and sensors setup
 
@@ -56,8 +60,6 @@ class Robot:
         self.v = Value('d', 0.0)
         self.w = Value('d', 0.0)
 
-        self.enc_d = None
-        self.enc_i = None
         # if we want to block several instructions to be run together, we may want to use an explicit Lock
         self.lock_odometry = Lock()
         # self.lock_odometry.acquire()
@@ -101,6 +103,9 @@ class Robot:
 
     def startOdometry(self):
         """ This starts a new process/thread that will be updating the odometry periodically """
+        self.log_file = time.strftime("%Y%m%d-%H%M%S") + '.txt'
+        fichero = open(self.log_file, 'w')
+        fichero.close()
         self.finished.value = False
         self.p = Process(target=self.updateOdometry, args=())  # additional_params?))
         self.p.start()
@@ -160,6 +165,10 @@ class Robot:
                 x = s * np.cos(self.th.value + th / 2)
                 y = s * np.sin(self.th.value + th / 2)
                 theta = th
+                
+                fichero = open(self.log_file, 'a')
+                fichero.write(str(tIni)+"\t"+str(x)+"\t"+str(y)+"\t"+str(theta)+"\n")
+                fichero.close()
 
                 self.lock_odometry.acquire()
                 self.x.value = x
