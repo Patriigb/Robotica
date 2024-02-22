@@ -28,8 +28,8 @@ class Robot:
         # self.R = ??
         # self.L = ??
         # self. ...
-        self.r =
-        self.L =
+        self.r = 2.75
+        self.L = 10.7
 
         self.enc_d = None
         self.enc_i = None
@@ -81,8 +81,8 @@ class Robot:
         speedDPS_left = degrees(v / self.r - (self.L * w) / (2 * self.r))
         speedDPS_right = degrees(v / self.r + (self.L * w) / (2 * self.r))
 
-        self.BP.set_motor_dps(self.BP.PORT_B, speedDPS_left)
-        self.BP.set_motor_dps(self.BP.PORT_C, speedDPS_right)
+        self.BP.set_motor_dps(self.BP.PORT_D, speedDPS_left)
+        self.BP.set_motor_dps(self.BP.PORT_A, speedDPS_right)
 
     def readSpeed(self):
         """ To be filled"""
@@ -200,4 +200,4 @@ class Robot:
     # Stop the odometry thread.
     def stopOdometry(self):
         self.finished.value = True
-        # self.BP.reset_all()
+        self.BP.reset_all()
