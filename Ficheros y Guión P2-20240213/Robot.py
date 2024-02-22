@@ -144,8 +144,8 @@ class Robot:
                 # Each of the following BP.get_motor_encoder functions returns the encoder value
                 # (what we want to store).
                 sys.stdout.write("Reading encoder values .... \n")
-                [encoder1, encoder2] = [self.BP.get_motor_encoder(self.BP.PORT_B),
-                    self.BP.get_motor_encoder(self.BP.PORT_C)]
+                [encoder1, encoder2] = [self.BP.get_motor_encoder(self.BP.PORT_A),
+                    self.BP.get_motor_encoder(self.BP.PORT_D)]
 
                 wd = radians(encoder1 - self.enc_d) / self.P
                 wi = radians(encoder2 - self.enc_i) / self.P

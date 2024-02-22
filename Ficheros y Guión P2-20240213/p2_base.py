@@ -59,12 +59,6 @@ def main(args):
         robot.lock_odometry.acquire()
         print("Odom values at main at the END: %.2f, %.2f, %.2f " % (robot.x.value, robot.y.value, robot.th.value))
         robot.lock_odometry.release()
-        time.sleep(4)
-        print("End : %s" % time.ctime())
-
-        robot.lock_odometry.acquire()
-        print("Odom values at main at the END: %.2f, %.2f, %.2f " % (robot.x.value, robot.y.value, robot.th.value))
-        robot.lock_odometry.release()
 
         robot.stopOdometry()
 
