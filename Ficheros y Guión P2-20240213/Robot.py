@@ -28,11 +28,11 @@ class Robot:
         # self.R = ??
         # self.L = ??
         # self. ...
-        self.r = 2.75
+        self.r = 2.5
         self.L = 10.7
 
-        self.enc_d = None
-        self.enc_i = None
+        self.enc_d = 0.0
+        self.enc_i = 0.0
         
         self.log_file = None
         ##################################################
@@ -80,6 +80,8 @@ class Robot:
 
         speedDPS_left = degrees(v / self.r - (self.L * w) / (2 * self.r))
         speedDPS_right = degrees(v / self.r + (self.L * w) / (2 * self.r))
+        
+        print("s1:", speedDPS_right, "s2:",speedDPS_left)
 
         self.BP.set_motor_dps(self.BP.PORT_D, speedDPS_left)
         self.BP.set_motor_dps(self.BP.PORT_A, speedDPS_right)
@@ -105,7 +107,11 @@ class Robot:
         """ This starts a new process/thread that will be updating the odometry periodically """
         self.log_file = time.strftime("%Y%m%d-%H%M%S") + '.txt'
         fichero = open(self.log_file, 'w')
+        fichero.write(str(0)+"\t"+str(self.x.value)+"\t"+str(self.y.value)+"\t"+str(self.th.value)+"\n")
         fichero.close()
+        self.x.value = 0
+        self.y.value = 0
+        self.th.value = 0
         self.finished.value = False
         self.p = Process(target=self.updateOdometry, args=())  # additional_params?))
         self.p.start()
@@ -121,9 +127,9 @@ class Robot:
 
             # compute updates
 
-            ######## UPDATE FROM HERE with your code (following the suggested scheme) ########
-            sys.stdout.write("Dummy update of odometry ...., X=  %d, \
-                Y=  %d, th=  %d \n" % (self.x.value, self.y.value, self.th.value))
+            # ######## UPDATE FROM HERE with your code (following the suggested scheme) ########
+            # sys.stdout.write("Dummy update of odometry ...., X=  %d, \
+            #     Y=  %d, th=  %d \n" % (self.x.value, self.y.value, self.th.value))
             # print("Dummy update of odometry ...., X=  %.2f" %(self.x.value) )
 
             # update odometry uses values that require mutex
@@ -146,25 +152,39 @@ class Robot:
                 sys.stdout.write("Reading encoder values .... \n")
                 [encoder1, encoder2] = [self.BP.get_motor_encoder(self.BP.PORT_A),
                     self.BP.get_motor_encoder(self.BP.PORT_D)]
-
-                wd = radians(encoder1 - self.enc_d) / self.P
-                wi = radians(encoder2 - self.enc_i) / self.P
-                self.enc_d = wd
-                self.enc_i = wi
+                
+                print("e1: ", encoder1, "e2: ", encoder2)
+                
+                print("se1:", self.enc_d, "=" ,radians(encoder1) - self.enc_d)
+                print("se2:", self.enc_i, "=" ,radians(encoder2) - self.enc_i)
+                wd = (radians(encoder1) - self.enc_d) / self.P
+                wi = (radians(encoder2) - self.enc_i) / self.P
+                
+                print("wd", wd, "wi:", wi)
+                
+                self.enc_d = radians(encoder1)
+                self.enc_i = radians(encoder2)
 
                 v = self.r * (wd + wi) / 2
                 w = self.r * (wd - wi) / self.L
 
+                print("v: ", v, " w: ", w)
                 if w == 0:
                     th = 0
                     s = v * self.P  # o tambien -> (encoder1 + encoder2) / 2
                 else:
                     th = w * self.P  # (encoder1 - encoder2) / self.L
                     s = (v / w) * th
+                
+                print("s:", s)
+                
+                x_ini, y_ini, th_ini = self.readOdometry()
 
-                x = s * np.cos(self.th.value + th / 2)
-                y = s * np.sin(self.th.value + th / 2)
-                theta = th
+                x = x_ini + s * np.cos(self.th.value + th / 2)
+                y = y_ini + s * np.sin(self.th.value + th / 2)
+                theta = th_ini + th
+                
+                print("x:", x, "y", y)
                 
                 fichero = open(self.log_file, 'a')
                 fichero.write(str(tIni)+"\t"+str(x)+"\t"+str(y)+"\t"+str(theta)+"\n")
@@ -200,4 +220,6 @@ class Robot:
     # Stop the odometry thread.
     def stopOdometry(self):
         self.finished.value = True
+        self.BP.reset_motor_encoder(self.BP.PORT_A)
+        self.BP.reset_motor_encoder(self.BP.PORT_D)
         self.BP.reset_all()
