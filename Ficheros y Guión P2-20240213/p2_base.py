@@ -61,12 +61,12 @@ def main(args):
 
 #        p = input()
 #        # 90º
-#        robot.startOdometry()
-#        robot.setSpeed(0, 0.7853981633974483)
-#        print("Start : %s" % time.ctime())
-#        time.sleep(2)
-#        print("X value from main tmp %d" % robot.x.value)
-#        robot.lock_odometry.acquire()
+        # robot.startOdometry()
+        # robot.setSpeed(0, math.pi/2)
+        # print("Start : %s" % time.ctime())
+        # time.sleep(1)
+        # print("X value from main tmp %d" % robot.x.value)
+        # robot.lock_odometry.acquire()
 #        print("Odom values at main at the END: %.2f, %.2f, %.2f " % (robot.x.value, robot.y.value, robot.th.value))
 #        robot.lock_odometry.release()
 #        robot.stopOdometry()
@@ -77,188 +77,208 @@ def main(args):
 #            if rb.norm_pi(theta) > math.pi/2 - 0.1  and rb.norm_pi(theta) < math.pi/2 + 0.1:
 #                nextStep = True
 #        robot.stopOdometry()
+        # robot.stopOdometry()
 
         # ...
 
 #        # 8:
-        p = input()
-        robot.startOdometry()
-        # girar 90º
-        nextStep = False
-        x,  y, theta_ini = robot.readOdometry()
-        robot.setSpeed(0, -0.5)
-        while not nextStep:
-            x,  y, theta = robot.readOdometry()
-            if theta != 0:
-                if rb.norm_pi(theta - theta_ini) > -math.pi/2 - 0.05  and \
-                    rb.norm_pi(theta - theta_ini) < -math.pi/2 + 0.05:
-                    nextStep = True
+        
+#         p = input()
+#         robot.startOdometry()
+        eps = 2.5
+#         # girar 90º
+#         nextStep = False
+#         x,  y, theta_ini = robot.readOdometry()
+#         robot.setSpeed(0, -1)
+#         while not nextStep:
+#             x,  y, theta = robot.readOdometry()
+#             # print("th", rb.norm_pi(theta - theta_ini), "min", -math.pi/2 - 0.05, "max", -math.pi/2 + 0.05)
+#             if theta != 0:
+#                 if rb.norm_pi(theta - theta_ini) > -math.pi/2 - 0.05  and \
+#                     rb.norm_pi(theta - theta_ini) < -math.pi/2 + 0.05:
+#                     nextStep = True
                     
 
 
-#
-#        # girar medio 8
-        nextStep = False
-        x_ini,  y_ini, theta_ini = robot.readOdometry()
-        WxI = np.array([x_ini, y_ini, theta_ini])
-        print(WxI)
-
-        WxF = np.array([(x_ini + args.radioD * 2), y_ini, rb.norm_pi(theta_ini +  math.pi)])
-        print(WxF)
-
-        v = 10.0
-        R = args.radioD
-        print(R)
-        w = v / R
-
-        print("Wx",WxF[0] - 2.0, "Wy", WxF[1] - 2.0, "Wth", WxF[2] - 0.07)
-        robot.setSpeed(v, w)
-        while not nextStep:
-            x,  y, theta = robot.readOdometry()
-            if x > (WxF[0] - 2.0)  and x < (WxF[0] + 2.0) and \
-               y > WxF[1] - 2.0  and y < WxF[1] + 2.0 :
-                #rb.norm_pi(theta) > WxF[2] - 0.07 and rb.norm_pi(theta) < WxF[2] + 0.07 :
-                    nextStep = True
 # #
+# #        # girar medio 8
+#         nextStep = False
+#         x_ini,  y_ini, theta_ini = robot.readOdometry()
+#         WxI = np.array([x_ini, y_ini, theta_ini])
+
+#         WxF = np.array([(x_ini + args.radioD * 2), y_ini, rb.norm_pi(theta_ini +  math.pi)])
+
+#         v = 10.0
+#         R = args.radioD
+#         w = v / R
+
+#         robot.setSpeed(v, w)
+#         while not nextStep:
+#             x,  y, theta = robot.readOdometry()
+#             if x > (WxF[0] - eps)  and x < (WxF[0] + eps) and \
+#                y > WxF[1] - eps  and y < WxF[1] + eps :
+#                 #rb.norm_pi(theta) > WxF[2] - 0.07 and rb.norm_pi(theta) < WxF[2] + 0.07 :
+#                     nextStep = True
+# # # #
+# # #
+# # #        # girar girar un circulo
+#         nextStep = False
+#         x_ini,  y_ini, theta_ini = robot.readOdometry()
+#         WxI = np.array([x_ini, y_ini, theta_ini])
+
+#         WxF = np.array([x_ini, y_ini, theta_ini])
+
+#         v = 10.0
+#         R = args.radioD
+#         w = v / R
+#         robot.setSpeed(v, -w)
+#         time.sleep(0.5)
+#         while not nextStep:
+#             x,  y, theta = robot.readOdometry()
+#             if x > WxF[0] - eps  and x < WxF[0] + eps and \
+#                 y > WxF[1] - eps  and y < WxF[1] + eps :
+#                 # theta > WxF[2] - 0.1 and theta < WxF[2] + 0.1 :
+#                     nextStep = True
+# #
+#         #robot.stopOdometry()
+# # #        # girar girar el otro medio 8
+#         nextStep = False
+#         x_ini,  y_ini, theta_ini = robot.readOdometry()
+#         WxI = np.array([x_ini, y_ini, theta_ini])
+
+#         WxF = np.array([x_ini - args.radioD * 2, y_ini, theta_ini - math.pi])
+
+#         v = 10.0
+#         R = args.radioD
+#         w = v / R
+
+#         robot.setSpeed(v, w)
+#         while not nextStep:
+#             x,  y, theta = robot.readOdometry()
+#             if  x > (WxF[0] - eps)  and x < (WxF[0] + eps) and \
+#                y > WxF[1] - eps  and y < WxF[1] + eps:
+#                 # theta > WxF[2] - 0.1 and theta < WxF[2] + 0.1 :
+#                     nextStep = True
+
+#         robot.stopOdometry()
 #
-#        # girar girar un circulo
+#        # 2º recorrido
+        p = input()
+        robot.startOdometry()
+        dc = 50.0 
+        # girar 90º
         nextStep = False
-        x_ini,  y_ini, theta_ini = robot.readOdometry()
-        WxI = np.array([x_ini, y_ini, theta_ini])
-
-        WxF = np.array([x_ini, y_ini, theta_ini])
-
-        v = 10.0
-        R = args.radioD
-        w = v / R
-        print("holaaaaaa")
-        robot.setSpeed(v, -w)
-        time.sleep(0.5)
+        x,  y, theta_ini = robot.readOdometry()
+        robot.setSpeed(0, 0.7)
         while not nextStep:
             x,  y, theta = robot.readOdometry()
-            if x > WxF[0] - 2.0  and x < WxF[0] + 2.0 and \
-                y > WxF[1] - 2.0  and y < WxF[1] + 2.0 :
-                # theta > WxF[2] - 0.1 and theta < WxF[2] + 0.1 :
+            if theta != 0:
+                if rb.norm_pi(theta - theta_ini) > math.pi/2 - 0.05  and \
+                    rb.norm_pi(theta - theta_ini) < math.pi/2 + 0.05:
                     nextStep = True
 #
-        #robot.stopOdometry()
-#        # girar girar el otro medio 8
+#        # girar radio por ejemplo 10 hasta beta
         nextStep = False
         x_ini,  y_ini, theta_ini = robot.readOdometry()
-        WxI = np.array([x_ini, y_ini, theta_ini])
 
-        WxF = np.array([x_ini - args.radioD * 2, y_ini, theta_ini - math.pi])
+        B = math.asin((args.radioD - args.radioA) / dc)
 
-        v = 10.0
-        R = args.radioD
-        w = v / R
+        print("B", B)
+        th_f = rb.norm_pi(math.pi/2 + B - theta_ini)
+        print("th_f", th_f)
+        v = 7.0
+        R1 = args.radioA
+        w = v / R1
 
-        robot.setSpeed(v, w)
+        robot.setSpeed(v, -w)
         while not nextStep:
             x,  y, theta = robot.readOdometry()
-            if  x > (WxF[0] - 2.0)  and x < (WxF[0] + 2.0) and \
-               y > WxF[1] - 2.0  and y < WxF[1] + 2.0:
-                # theta > WxF[2] - 0.1 and theta < WxF[2] + 0.1 :
+            if theta > th_f - 0.05 and theta < th_f + 0.05 :
+                    nextStep = True
+                    
+        
+#
+        # avanzar hasta llegar al siguiente circulo
+        nextStep = False
+        x_ini,  y_ini, theta_ini = robot.readOdometry()
+
+        v = 10.0
+        r2 = math.sqrt((dc**2) - (args.radioD - args.radioA)**2)
+        
+        x2 = x_ini + r2 * math.cos(B)
+        y2 = y_ini + r2 * math.sin(B)
+
+        print("x2", x2, "y2", y2)
+
+        robot.setSpeed(v, 0)
+        while not nextStep:
+            x,  y, theta = robot.readOdometry()
+            if x > x2 - eps  and x < x2 + eps and \
+                 y > y2- eps  and y < y2 + eps:
+                    nextStep = True
+
+        
+#
+       # girar pi + B + B
+        nextStep = False
+        x_ini,  y_ini, theta_ini = robot.readOdometry()
+        
+        th_f = rb.norm_pi(theta_ini - 2*B - math.pi)
+        print("th_f2", th_f)
+        v = 10.0
+        R2 = args.radioD
+        w = v / R2
+        
+        print("ang2", th_f)
+        print("ang2", 2*B + math.pi)
+
+        robot.setSpeed(v, -w)
+        while not nextStep:
+            x,  y, theta = robot.readOdometry()
+            print("th", theta, "th_min", th_f - 0.1, "th_max", th_f + 0.1)
+            if theta > th_f - 0.15 and theta < th_f + 0.15:
+                    nextStep = True
+                   
+#
+#        # avanzar hasta llegar al siguiente circulo
+        nextStep = False
+        x_ini,  y_ini, theta_ini = robot.readOdometry()
+
+        v = 10.0
+        
+        r2 = math.sqrt((dc**2) - (args.radioD - args.radioA)**2)
+        
+        x2 = x_ini - r2 * math.cos(B)
+        y2 = y_ini + r2 * math.sin(B)
+        
+        print("x222", x2, "y222", y2)
+
+
+        robot.setSpeed(v, 0)
+        while not nextStep:
+            x,  y, theta = robot.readOdometry()
+            if x > x2 - eps -1   and x < x2 + eps + 1:
+                    nextStep = True
+#
+        
+#        # girar radio hasta llegar a posicion inicial
+        nextStep = False
+        x_ini,  y_ini, theta_ini = robot.readOdometry()
+
+        v = 7.0
+        R1 = args.radioA
+        w = v / R1
+        y2 = 0
+        x2 = 0
+
+        robot.setSpeed(v, -w)
+        while not nextStep:
+            x,  y, theta = robot.readOdometry()
+            if x > x2 - eps  and x < x2 + eps and \
+                y > y2 - eps  and y < y2 + eps :
                     nextStep = True
 
         robot.stopOdometry()
-#
-#        # 2º recorrido
-#        p = input()
-#        robot.startOdometry()
-#        # girar 90º
-#        nextStep = False
-#        x,  y, theta_ini = robot.readOdometry()
-#        robot.setSpeed(0, -1)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if abs(theta_ini - theta) > math.pi - 0.1  and \
-#                abs(theta_ini - theta) < math.pi + 0.1:
-#                nextStep = True
-#                robot.setSpeed(0, 0)
-#
-#        # girar radio por ejemplo 10 hasta 70º
-#        nextStep = False
-#        x_ini,  y_ini, theta_ini = robot.readOdometry()
-#        th_f = rb.norm_pi(theta_ini - math.radians(70))
-#
-#        v = 10.0
-#        R1 = args.radioA
-#        w = v / R1
-#
-#        robot.setSpeed(v, -w)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if theta > th_f - 0.1 and theta < th_f + 0.1 :
-#                    nextStep = True
-#                    robot.setSpeed(0, 0)
-#
-#        # avanzar hasta llegar al siguiente circulo
-#        nextStep = False
-#        x_ini,  y_ini, theta_ini = robot.readOdometry()
-#
-#        v = 10.0
-#
-#        R2 = args.radioD
-#        y_f = R2 - R2 * (1 - math.cos(math.radians(20)))
-#        print(y_f)
-#
-#        robot.setSpeed(v, 0)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if y > y_f - 1.5  and y < y_f + 1.5 :
-#                    nextStep = True
-#                    robot.setSpeed(0, 0)
-#
-#        # girar 220º
-#        nextStep = False
-#        x_ini,  y_ini, theta_ini = robot.readOdometry()
-#        th_f = rb.norm_pi(theta_ini - math.radians(220))
-#
-#        v = 10.0
-#        R2 = args.radioD
-#        w = v / R2
-#
-#        robot.setSpeed(v, -w)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if theta > th_f - 0.1 and theta < th_f + 0.1:
-#                    nextStep = True
-#                    robot.setSpeed(0, 0)
-#
-#        # avanzar hasta llegar al siguiente circulo
-#        nextStep = False
-#        x_ini,  y_ini, theta_ini = robot.readOdometry()
-#
-#        v = 10.0
-#
-#        R1 = args.radioA
-#        y_f = - R1 + R1 * (1 - math.cos(math.radians(-20)))
-#        print(y_f)
-#
-#        robot.setSpeed(v, 0)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if y > y_f - 1.5  and y < y_f + 1.5 :
-#                    nextStep = True
-#                    robot.setSpeed(0, 0)
-#
-#        # girar radio hasta llegar a posicion inicial
-#        nextStep = False
-#        x_ini,  y_ini, theta_ini = robot.readOdometry()
-#
-#        v = 10.0
-#        R1 = args.radioA
-#        w = v / R1
-#        y_f = 0
-#
-#        robot.setSpeed(v, -w)
-#        while not nextStep:
-#            x,  y, theta = robot.readOdometry()
-#            if  y > y_f - 1.5  and y < y_f + 1.5 :
-#                    nextStep = True
-#                    robot.setSpeed(0, 0)
-
 
 
         # 3. wrap up and close stuff ...

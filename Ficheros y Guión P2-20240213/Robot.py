@@ -29,7 +29,7 @@ class Robot:
         # self.R = ??
         # self.L = ??
         # self. ...
-        self.r = 2.5
+        self.r = 2.7
         self.L = 10.7
 
         self.enc_d = 0.0
@@ -68,7 +68,7 @@ class Robot:
         # self.lock_odometry.release()
 
         # odometry update period --> UPDATE value!
-        self.P = 0.1
+        self.P = 0.09
 
     def setSpeed(self, v, w):
         """ To be filled - These is all dummy sample code """
@@ -78,10 +78,20 @@ class Robot:
 
         # speedPower = 100
         # BP.set_motor_power(BP.PORT_B + BP.PORT_C, speedPower)
+        
+        M1 = np.array([[1/self.r, self.L/(2*self.r)],
+                      [1/self.r, -self.L/(2*self.r)]])
+        
+        M2 = np.array([[v],[w]])
+        
+        result = np.dot(M1,M2)
+        
+        print(result)
 
-        speedDPS_left = degrees(v / self.r - (self.L * w) / (2 * self.r))
-        speedDPS_right = degrees(v / self.r + (self.L * w) / (2 * self.r))
-        print("speed r l %.2f %.2f" % (speedDPS_right, speedDPS_left))
+        speedDPS_right = np.rad2deg(result[0][0])
+        speedDPS_left = np.rad2deg(result[1][0])
+        # speedDPS_left = degrees(v / self.r - (self.L * w) / (2 * self.r))
+        # speedDPS_right = degrees(v / self.r + (self.L * w) / (2 * self.r))
 
         self.BP.set_motor_dps(self.BP.PORT_D, speedDPS_left)
         self.BP.set_motor_dps(self.BP.PORT_A, speedDPS_right)
@@ -155,20 +165,18 @@ class Robot:
 
                 wd = (radians(encoder1) - self.enc_d) / self.P
                 wi = (radians(encoder2) - self.enc_i) / self.P
-                print("speed wr wl %.2f %.2f" % (degrees(wd), degrees(wi)))
 
                 diff_encD = radians(encoder1) - self.enc_d
                 diff_encI = radians(encoder2) - self.enc_i
                 self.enc_d = radians(encoder1)
                 self.enc_i = radians(encoder2)
 
-#                v = (self.r * wd)/2 + (self.r * wi) / 2
-#                w = (self.r * wd)/ self.L -  (self.r * wi) / self.L
+                # v = (self.r * wd)/2 + (self.r * wi) / 2
+                # w = (self.r * wd)/ self.L -  (self.r * wi) / self.L
 
                 v = self.r * (wd + wi) / 2
                 w = self.r * (wd - wi) /(self.L)
                 
-                print("speed v w %.2f %.2f" % (v, w))
                 if w == 0:
                     th = 0
                     s = v * self.P  # o tambien -> (encoder1 + encoder2) / 2
@@ -176,7 +184,6 @@ class Robot:
                 else:
                     th = w * self.P  # (encoder1 - encoder2) / self.L
                     #th = (diff_encD - diff_encI) / self.L
-                    print("R", v / w)
                     s = (v / w) * th
 
 
@@ -185,8 +192,6 @@ class Robot:
                 x = x_ini + s * np.cos(th_ini + th / 2)
                 y = y_ini + s * np.sin(th_ini + th / 2)
                 theta = rb.norm_pi(th_ini + th)
-
-                #print("x:", x, "y", y)
 
                 fichero = open(self.log_file, 'a')
                 fichero.write(str(tIni)+"\t"+str(x)+"\t"+str(y)+"\t"+str(theta)+"\n")
