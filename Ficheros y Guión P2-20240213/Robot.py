@@ -8,6 +8,7 @@ import time  # import the time library for the sleep function
 import sys
 import numpy as np
 import brickpi3 # import the BrickPi3 drivers
+import robotics as rb
 
 # tambien se podria utilizar el paquete de threading
 from multiprocessing import Process, Value, Array, Lock
@@ -33,7 +34,7 @@ class Robot:
 
         self.enc_d = 0.0
         self.enc_i = 0.0
-        
+
         self.log_file = None
         ##################################################
         # Motors and sensors setup
@@ -80,8 +81,7 @@ class Robot:
 
         speedDPS_left = degrees(v / self.r - (self.L * w) / (2 * self.r))
         speedDPS_right = degrees(v / self.r + (self.L * w) / (2 * self.r))
-        
-        print("s1:", speedDPS_right, "s2:",speedDPS_left)
+        print("speed r l %.2f %.2f" % (speedDPS_right, speedDPS_left))
 
         self.BP.set_motor_dps(self.BP.PORT_D, speedDPS_left)
         self.BP.set_motor_dps(self.BP.PORT_A, speedDPS_right)
@@ -149,43 +149,45 @@ class Robot:
             try:
                 # Each of the following BP.get_motor_encoder functions returns the encoder value
                 # (what we want to store).
-                sys.stdout.write("Reading encoder values .... \n")
+                #sys.stdout.write("Reading encoder values .... \n")
                 [encoder1, encoder2] = [self.BP.get_motor_encoder(self.BP.PORT_A),
                     self.BP.get_motor_encoder(self.BP.PORT_D)]
-                
-                print("e1: ", encoder1, "e2: ", encoder2)
-                
-                print("se1:", self.enc_d, "=" ,radians(encoder1) - self.enc_d)
-                print("se2:", self.enc_i, "=" ,radians(encoder2) - self.enc_i)
+
                 wd = (radians(encoder1) - self.enc_d) / self.P
                 wi = (radians(encoder2) - self.enc_i) / self.P
-                
-                print("wd", wd, "wi:", wi)
-                
+                print("speed wr wl %.2f %.2f" % (degrees(wd), degrees(wi)))
+
+                diff_encD = radians(encoder1) - self.enc_d
+                diff_encI = radians(encoder2) - self.enc_i
                 self.enc_d = radians(encoder1)
                 self.enc_i = radians(encoder2)
 
-                v = self.r * (wd + wi) / 2
-                w = self.r * (wd - wi) / self.L
+#                v = (self.r * wd)/2 + (self.r * wi) / 2
+#                w = (self.r * wd)/ self.L -  (self.r * wi) / self.L
 
-                print("v: ", v, " w: ", w)
+                v = self.r * (wd + wi) / 2
+                w = self.r * (wd - wi) /(self.L)
+                
+                print("speed v w %.2f %.2f" % (v, w))
                 if w == 0:
                     th = 0
                     s = v * self.P  # o tambien -> (encoder1 + encoder2) / 2
+                    #s = (diff_encD + diff_encI) / 2
                 else:
                     th = w * self.P  # (encoder1 - encoder2) / self.L
+                    #th = (diff_encD - diff_encI) / self.L
+                    print("R", v / w)
                     s = (v / w) * th
-                
-                print("s:", s)
-                
+
+
                 x_ini, y_ini, th_ini = self.readOdometry()
 
-                x = x_ini + s * np.cos(self.th.value + th / 2)
-                y = y_ini + s * np.sin(self.th.value + th / 2)
-                theta = th_ini + th
-                
-                print("x:", x, "y", y)
-                
+                x = x_ini + s * np.cos(th_ini + th / 2)
+                y = y_ini + s * np.sin(th_ini + th / 2)
+                theta = rb.norm_pi(th_ini + th)
+
+                #print("x:", x, "y", y)
+
                 fichero = open(self.log_file, 'a')
                 fichero.write(str(tIni)+"\t"+str(x)+"\t"+str(y)+"\t"+str(theta)+"\n")
                 fichero.close()
@@ -223,3 +225,4 @@ class Robot:
         self.BP.reset_motor_encoder(self.BP.PORT_A)
         self.BP.reset_motor_encoder(self.BP.PORT_D)
         self.BP.reset_all()
+
