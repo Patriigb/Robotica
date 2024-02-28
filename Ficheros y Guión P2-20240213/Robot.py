@@ -68,7 +68,7 @@ class Robot:
         # self.lock_odometry.release()
 
         # odometry update period --> UPDATE value!
-        self.P = 0.09
+        self.P = 0.07
 
     def setSpeed(self, v, w):
         """ To be filled - These is all dummy sample code """
@@ -85,8 +85,7 @@ class Robot:
         M2 = np.array([[v],[w]])
         
         result = np.dot(M1,M2)
-        
-        print(result)
+    
 
         speedDPS_right = np.rad2deg(result[0][0])
         speedDPS_left = np.rad2deg(result[1][0])

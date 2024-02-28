@@ -24,6 +24,7 @@ def main(args):
         print("X value at the beginning from main X= %.2f" %(robot.x.value))
         # 1. launch updateOdometry Process()
         
+        
         if args.tray == 1:
             mv.movimento_8(robot, 2.5, args.radioD)
 
