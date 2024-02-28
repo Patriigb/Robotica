@@ -29,7 +29,7 @@ class Robot:
         # self.R = ??
         # self.L = ??
         # self. ...
-        self.r = 2.7
+        self.r = 2.8
         self.L = 10.7
 
         self.enc_d = 0.0
