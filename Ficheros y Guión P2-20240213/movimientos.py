@@ -45,7 +45,8 @@ def movimento_8(robot, eps, D):
     while not nextStep:
         x,  y, theta = robot.readOdometry()
         if x > (WxF[0] - eps)  and x < (WxF[0] + eps) and \
-            y > WxF[1] - eps  and y < WxF[1] + eps :
+            y > WxF[1] - eps  and y < WxF[1] + eps and \
+                theta > math.pi/2 - 0.2 and theta < math.pi/2 + 0.2:
                 nextStep = True
 #
 
@@ -64,7 +65,8 @@ def movimento_8(robot, eps, D):
     while not nextStep:
         x,  y, theta = robot.readOdometry()
         if x > WxF[0] - eps  and x < WxF[0] + eps and \
-            y > WxF[1] - eps  and y < WxF[1] + eps :
+            y > WxF[1] - eps  and y < WxF[1] + eps and \
+            theta > math.pi/2 - 0.2 and theta < math.pi/2 + 0.2:
                 nextStep = True
                 
     # girar girar el otro medio 8
@@ -82,7 +84,8 @@ def movimento_8(robot, eps, D):
     while not nextStep:
         x,  y, theta = robot.readOdometry()
         if  x > (WxF[0] - eps)  and x < (WxF[0] + eps) and \
-            y > WxF[1] - eps  and y < WxF[1] + eps:
+            y > WxF[1] - eps  and y < WxF[1] + eps and\
+            theta > -math.pi/2 - 0.2 and theta < -math.pi/2 + 0.2:
                 nextStep = True
 
     robot.stopOdometry()
@@ -98,12 +101,14 @@ def movimiento_cadena(robot, D, A, eps):
     dc = 50.0 
     # girar 90º
     nextStep = False
-    x,  y, theta_ini = robot.readOdometry()
+    x_ini,  y_ini, theta_ini = robot.readOdometry()
     robot.setSpeed(0, 1.5)
     while not nextStep:
         x,  y, theta = robot.readOdometry()
         if theta != 0:
-            if rb.norm_pi(theta - theta_ini) > math.pi/2 - 0.05  and \
+            if x > x_ini - eps and x < x_ini + eps and \
+                y > y_ini - eps and y < y_ini + eps and \
+                rb.norm_pi(theta - theta_ini) > math.pi/2 - 0.05  and \
                 rb.norm_pi(theta - theta_ini) < math.pi/2 + 0.05:
                 nextStep = True
 #
@@ -139,7 +144,9 @@ def movimiento_cadena(robot, D, A, eps):
     robot.setSpeed(v, 0)
     while not nextStep:
         x,  y, theta = robot.readOdometry()
-        if x > x2 - eps  and x < x2 + eps:
+        if x > x2 - eps  and x < x2 + eps and \
+            y > y2 - 6  and y < y2 + 6 and \
+            theta > theta_ini - 0.3 and theta < theta_ini + 0.3:
                 nextStep = True
 
     
@@ -175,7 +182,9 @@ def movimiento_cadena(robot, D, A, eps):
     robot.setSpeed(v, 0)
     while not nextStep:
         x,  y, theta = robot.readOdometry()
-        if x > x2 - eps -1   and x < x2 + eps + 1:
+        if x > x2 - eps - 1  and x < x2 + eps +1 and \
+            y > y2 - 6  and y < y2 + 6 and \
+            theta > theta_ini - 0.3 and theta < theta_ini + 0.3:
                 nextStep = True
 #
     
@@ -192,7 +201,9 @@ def movimiento_cadena(robot, D, A, eps):
     robot.setSpeed(v, -w)
     while not nextStep:
         x,  y, theta = robot.readOdometry()
-        if theta > math.pi/2 - 0.1  and theta < math.pi/2 + 0.1:
+        if x > x2 - eps - 1  and x < x2 + eps +1 and \
+            y > y2 - 6  and y < y2 + 6 and \
+            theta > math.pi/2 - 0.1  and theta < math.pi/2 + 0.1:
                 nextStep = True
 
     robot.stopOdometry()
