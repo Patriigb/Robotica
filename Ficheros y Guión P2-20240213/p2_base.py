@@ -26,6 +26,7 @@ def main(args):
         
         
         if args.tray == 1:
+            
             mv.movimento_8(robot, 2.5, args.radioD)
 
         elif args.tray == 2:
