@@ -71,7 +71,7 @@ class Robot:
         self.P = 0.07
 
     def setSpeed(self, v, w):
-        """ To be filled - These is all dummy sample code """
+        """ Stablish the speed of both motors """
         print("setting speed to %.2f %.2f" % (v, w))
 
         # compute the speed that should be set in each motor ...
@@ -96,7 +96,7 @@ class Robot:
         self.BP.set_motor_dps(self.BP.PORT_A, speedDPS_right)
 
     def readSpeed(self):
-        """ To be filled"""
+        """ Returns current value of linear and angular speed"""
         self.lock_odometry.acquire()
         v = self.v.value
         w = self.w.value
@@ -128,32 +128,12 @@ class Robot:
 
     # You may want to pass additional shared variables besides the odometry values and stop flag
     def updateOdometry(self):  # , additional_params?):
-        """ To be filled ...  """
+        """ Updates the position and theta in a continuous loop """
 
         while not self.finished.value:
             # current processor time in a floating point value, in seconds
             tIni = time.clock()
 
-            # compute updates
-
-            # ######## UPDATE FROM HERE with your code (following the suggested scheme) ########
-            # sys.stdout.write("Dummy update of odometry ...., X=  %d, \
-            #     Y=  %d, th=  %d \n" % (self.x.value, self.y.value, self.th.value))
-            # print("Dummy update of odometry ...., X=  %.2f" %(self.x.value) )
-
-            # update odometry uses values that require mutex
-            # (they are declared as value, so lock is implicitly done for atomic operations, BUT =+ is NOT atomic)
-
-            # Operations like += which involve a read and write are not atomic.
-            # with self.x.get_lock():
-            #    self.x.value+=1
-
-            # to "lock" a whole set of operations, we can use a "mutex"
-            # self.lock_odometry.acquire()
-            # self.x.value+=1
-            # self.y.value+=1
-            # self.th.value+=1
-            # self.lock_odometry.release()
 
             try:
                 # Each of the following BP.get_motor_encoder functions returns the encoder value

@@ -9,14 +9,19 @@ import robotics as rb
 from Robot import Robot
 
 def movimento_8(robot, eps, D):
-    #8:
-        
+    """Realiza la primera trayectoria (8) del proyecto
+
+    Args:
+        robot
+        eps: error principal en las distancias
+        D: radio D
+    """
+    #8:    
+    #girar 90º
     p = input()
     time.sleep(3)
         
     robot.startOdometry()
-    
-    #girar 90º
     nextStep = False
     x,  y, theta_ini = robot.readOdometry()
     robot.setSpeed(0, -1.5)
@@ -93,13 +98,21 @@ def movimento_8(robot, eps, D):
 
 
 def movimiento_cadena(robot, D, A, eps):
+    """Realiza la segunda trayectoria (cadena) del proyecto
+
+    Args:
+        robot
+        D: radio D
+        A: radio A
+        eps (_type_): error principal para las distancias
+    """
     # 2º recorrido
+    dc = 50.0 
+    # girar 90º
     p = input()
     time.sleep(3)
         
     robot.startOdometry()
-    dc = 50.0 
-    # girar 90º
     nextStep = False
     x_ini,  y_ini, theta_ini = robot.readOdometry()
     robot.setSpeed(0, 1.5)
