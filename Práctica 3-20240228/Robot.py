@@ -13,6 +13,9 @@ import robotics as rb
 # tambien se podria utilizar el paquete de threading
 from multiprocessing import Process, Value, Array, Lock
 from math import cos, sin, atan2, radians, degrees
+import cv2
+import numpy as np
+import calibrarCamara as cc
 
 
 class Robot:
@@ -198,3 +201,83 @@ class Robot:
         self.BP.reset_motor_encoder(self.BP.PORT_D)
         self.BP.reset_all()
 
+
+    def trackObject(self, colorRangeMin=[0,0,0], colorRangeMax=[255,255,255]):
+        finished = False 
+        targetFound = False 
+        targetPositionReached = False 
+        while not finished: 
+        # 1. search the most promising blob 
+            # Capturar imagen
+            frame = cv2.VideoCapture(0)
+            ret, img_BGR = frame.read()
+
+            # calcular blob en la imagen (get_color_blobs)
+            img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR)
+
+            # Si hay más de un blob, seleccionar el más grande
+            if keypoints_red:
+                maxDiameter = 0
+                kp = keypoints_red[0]
+                for kp2 in keypoints_red:
+                    if kp2.size > maxDiameter:
+                        kp = kp2
+                        maxDiameter = kp2.size    
+            else:
+                kp = None
+
+            # Calcular areas y distancias
+            if kp:
+                # Centro de la imagen
+                h, w = img_BGR.shape[:2]
+                center = (w // 2 - 50, h // 2 + 100)
+                print("Centro de la imagen", center)
+
+                # Centro del blob
+                x, y = int(kp.pt[0]), int(kp.pt[1])
+                print("Centro del blob", x, y)
+
+                # Calcular distancia entre centro de la imagen y centro del blob
+                distance = np.sqrt((center[0] - x)**2 + (center[1] - y)**2)
+                print("Distancia entre los centros",distance)
+
+                # Calcular area del blob
+                area = np.pi * (kp.size/2)**2
+                print("Area del blob", area)
+
+                # Diferencia de areas
+                diff = self.area - area
+                print("Diferencia de areas", diff)
+            else:
+                # Buscar píxeles rojos a la izquierda o derecha de la imagen
+                left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
+                right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
+
+                if left_red_pixels > 0:
+                    print("Píxeles rojos encontrados a la izquierda de la imagen")
+                elif right_red_pixels > 0:
+                    print("Píxeles rojos encontrados a la derecha de la imagen")
+                else:
+                    print("No hay")
+
+
+            while not targetPositionReached: 
+            # 2. decide v and w for the robot to get closer to target position 
+                # Si la distancia es negativa?, girar a la derecha (w < 0)
+                # Si es positiva?, girar a la izquierda (w > 0)
+
+                # Si la diferencia de areas es muy grande, acercarse más rápido con v mayor
+                # Si es muy pequeña, acercarse más lento con v menor
+                # Si es negativa, alejarse (v < 0)
+
+                if distance > 10 and diff > 10: # cambiar valores
+                    targetPositionReached  = True 
+                    finished = True 
+        return finished 
+
+
+    def catch(self): 
+        # decide the strategy to catch the ball once you have reached the target position 
+        # Avanzar un poco
+        # Girar el motor de la cesta
+        return True
