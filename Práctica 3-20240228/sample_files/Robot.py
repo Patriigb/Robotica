@@ -206,10 +206,10 @@ class Robot:
         finished = False 
         targetFound = False 
         targetPositionReached = False 
+        frame = cv2.VideoCapture(0)
         while not finished: 
         # 1. search the most promising blob 
             # Capturar imagen
-            frame = cv2.VideoCapture(0)
             ret, img_BGR = frame.read()
 
             # calcular blob en la imagen (get_color_blobs)
@@ -228,51 +228,39 @@ class Robot:
 
             # Calcular areas y distancias
             if kp:
-                # Centro de la imagen
-                h, w = img_BGR.shape[:2]
-                center = (w // 2 - 50, h // 2 + 100)
-                print("Centro de la imagen", center)
-
-                # Centro del blob
-                x, y = int(kp.pt[0]), int(kp.pt[1])
-                print("Centro del blob", x, y)
-
-                # Calcular distancia entre centro de la imagen y centro del blob
-                distance = np.sqrt((center[0] - x)**2 + (center[1] - y)**2)
-                print("Distancia entre los centros",distance)
-
-                # Calcular area del blob
-                area = np.pi * (kp.size/2)**2
-                print("Area del blob", area)
-
-                # Diferencia de areas
-                diff = self.area - area
-                print("Diferencia de areas", diff)
+                
+                distance, diff = cc.computeDistances(img_BGR, self.area, kp)
+                
+                if abs(distance) >= 70:
+                    w_speed = abs(distance) / 1500
+                    if distance > 0:
+                        w_speed = 0 - w_speed
+                    self.setSpeed(0,w_speed)
+                    
+                elif abs(diff) >= 10000: # que esté centrado
+                    v_speed = diff // 2000
+                    self.setSpeed(v_speed, 0)
+                    
+                if abs(distance) < 70 and abs(diff) < 10000: # que esté lo suficientemente cerca
+                    self.setSpeed(0, 0)
+                    cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
+                    finished = True
+                
             else:
                 # Buscar píxeles rojos a la izquierda o derecha de la imagen
                 left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
                 right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
 
-                if left_red_pixels > 0:
-                    print("Píxeles rojos encontrados a la izquierda de la imagen")
-                elif right_red_pixels > 0:
-                    print("Píxeles rojos encontrados a la derecha de la imagen")
-                else:
-                    print("No hay")
+                # if left_red_pixels > 0:
+                #     print("Píxeles rojos encontrados a la izquierda de la imagen")
+                #     self.setSpeed(0, 0.3)
+                # elif right_red_pixels > 0:
+                #     print("Píxeles rojos encontrados a la derecha de la imagen")
+                #     self.setSpeed(0, -0.3)
+                # else:
+                print("No hay")
+                self.setSpeed(0, 0.3)
 
-
-            while not targetPositionReached: 
-            # 2. decide v and w for the robot to get closer to target position 
-                # Si la distancia es negativa?, girar a la derecha (w < 0)
-                # Si es positiva?, girar a la izquierda (w > 0)
-
-                # Si la diferencia de areas es muy grande, acercarse más rápido con v mayor
-                # Si es muy pequeña, acercarse más lento con v menor
-                # Si es negativa, alejarse (v < 0)
-
-                if distance > 10 and diff > 10: # cambiar valores
-                    targetPositionReached  = True 
-                    finished = True 
         return finished 
 
 
