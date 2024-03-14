@@ -231,19 +231,21 @@ class Robot:
                 
                 distance, diff = cc.computeDistances(img_BGR, self.area, kp)
                 
-                if abs(distance) >= 70:
+                w_speed = 0
+                v_speed = 0
+                if abs(distance) >= 100:
                     w_speed = abs(distance) / 1500
                     if distance > 0:
                         w_speed = 0 - w_speed
-                    self.setSpeed(0,w_speed)
                     
-                elif abs(diff) >= 10000: # que esté centrado
-                    v_speed = diff // 2000
-                    self.setSpeed(v_speed, 0)
+                if abs(diff) >= 25000: # que esté centrado
+                    v_speed = diff / 5000
                     
-                if abs(distance) < 70 and abs(diff) < 10000: # que esté lo suficientemente cerca
+                self.setSpeed(v_speed, w_speed)
+                    
+                if abs(distance) < 100 and abs(diff) < 25000: # que esté lo suficientemente cerca
                     self.setSpeed(0, 0)
-                    cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
+                    # cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
                     finished = True
                 
             else:
@@ -251,10 +253,10 @@ class Robot:
                 left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
                 right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
 
-                # if left_red_pixels > 0:
+                # if left_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la izquierda de la imagen")
                 #     self.setSpeed(0, 0.3)
-                # elif right_red_pixels > 0:
+                # elif right_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la derecha de la imagen")
                 #     self.setSpeed(0, -0.3)
                 # else:
@@ -267,5 +269,16 @@ class Robot:
     def catch(self): 
         # decide the strategy to catch the ball once you have reached the target position 
         # Avanzar un poco
+        print("catch")
+        self.setSpeed(3, 0)
+        time.sleep(1.7)
+        self.setSpeed(0, 0)
         # Girar el motor de la cesta
+        
+        speedDPS = np.rad2deg(np.pi/2)
+        
+        self.BP.set_motor_dps(self.BP.PORT_B, speedDPS)
+        time.sleep(0.7)
+        self.BP.set_motor_dps(self.BP.PORT_B, 0)
+        
         return True

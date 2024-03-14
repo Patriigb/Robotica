@@ -36,11 +36,11 @@ def detectBlob(img_BGR):
         detector = cv2.SimpleBlobDetector_create(params)
 
     # Mask for red 
-    redMin = (0, 100, 90)
+    redMin = (0, 100, 80)
     redMax = (10, 255, 255)
 
     # Mask for red in the other side of the color space
-    redMin2 = (170, 100, 90)
+    redMin2 = (170, 100, 80)
     redMax2 = (180, 255, 255)
 
     mask_red=cv2.inRange(img_HSV, redMin, redMax)

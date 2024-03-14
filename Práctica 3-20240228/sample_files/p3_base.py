@@ -25,8 +25,9 @@ def main(args):
         # At least COLOR, the rest are up to you, but always put a default value.
         res = robot.trackObject()
 
-        # if res:
-        #   robot.catch
+        print(res)
+        if res:
+          robot.catch()
 
         # 3. wrap up and close stuff ...
         # This currently unconfigure the sensors, disable the motors, 
