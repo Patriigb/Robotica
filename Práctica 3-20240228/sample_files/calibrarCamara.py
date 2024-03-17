@@ -136,7 +136,7 @@ def computeDistances(img_BGR, r_area, kp):
     diff = r_area - area
     print("Diferencia de areas", diff)
 
-    return distance, diff
+    return distance, diff, x, w
     
 
 # PRUEBA:
@@ -150,6 +150,7 @@ def calibrar():
         # Detect blobs
         img_BGR, im_with_keypoints, keypoints_red, mask_red = detectBlob(img_BGR)
         
+
         if keypoints_red:
             distancia, area = draw_blobs(img_BGR, keypoints_red, im_with_keypoints)
             if distancia < 0: 
