@@ -207,6 +207,7 @@ class Robot:
         targetFound = False 
         targetPositionReached = False 
         frame = cv2.VideoCapture(0)
+        izquierda, derecha, hay_bola = False, False, False
         while not finished: 
         # 1. search the most promising blob 
             # Capturar imagen
@@ -229,15 +230,15 @@ class Robot:
             # Calcular areas y distancias
             if kp:
                 
-                distance, diff = cc.computeDistances(img_BGR, self.area, kp)
-                
+                distance, diff, x, w = cc.computeDistances(img_BGR, self.area, kp)
+              
                 w_speed = 0
                 v_speed = 0
                 if abs(distance) >= 100:
                     w_speed = abs(distance) / 1500
                     if distance > 0:
                         w_speed = 0 - w_speed
-                    
+                  
                 if abs(diff) >= 25000: # que esté centrado
                     v_speed = diff / 5000
                     
@@ -247,21 +248,77 @@ class Robot:
                     self.setSpeed(0, 0)
                     # cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
                     finished = True
+
+                # Establecemos si la bola está a la izquierda o a la derecha
+                if x < w//2:
+                    izquierda = True
+                    derecha = False 
+                    hay_bola = True
+                    print("-- BOLA EN LA IZQUIERDA --")
+                
+                elif x > w//2:
+                    derecha = True
+                    izquierda = False
+                    hay_bola = True
+                    print("-- BOLA EN LA DERECHA --")
+
+                else :
+                    izquierda = False
+                    derecha = False
+                    hay_bola = True
+                    print("-- BOLA EN EL CENTRO --")
                 
             else:
+                hay_bola = False
                 # Buscar píxeles rojos a la izquierda o derecha de la imagen
                 left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
                 right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
 
                 # if left_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la izquierda de la imagen")
-                #     self.setSpeed(0, 0.3)
                 # elif right_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la derecha de la imagen")
-                #     self.setSpeed(0, -0.3)
                 # else:
-                print("No hay")
-                self.setSpeed(0, 0.3)
+                #     print("No hay")
+             # capturar imagen
+                    
+            # Se comprueba si la bola está a la izquierda o a la derecha y si no está se establece la velocidad para girar
+            if not hay_bola:
+                if izquierda:
+                    print("Girar a la izquierda")
+                    self.setSpeed(0, 0.3)
+                elif derecha:
+                    print("Girar a la derecha")
+                    self.setSpeed(0, -0.3)
+                else:
+                    print("No hay bola")
+                    # self.setSpeed(0, 0)
+
+            ret, img_BGR = frame.read()
+
+            # diviidr la imagen en dos mitades con una linea vertical
+            cv2.line(img_BGR, img_BGR.shape[1]//2, 0, img_BGR.shape[1]//2, img_BGR.shape[0], (0, 255, 0), 2)
+
+            kp = (img_BGR.shape[1]//4, img_BGR.shape[0]//2)
+
+            if kp:
+                distance = kp[0] - img_BGR.shape[1]//2
+                diff, w_speed, v_speed = 0, 0, 0
+                if abs(distance) >= 100:
+                    w_speed = abs(distance) / 1500
+                    if distance > 0:
+                        w_speed = 0 - w_speed
+                if abs(diff) >= 25000:
+                    v_speed = diff / 5000
+
+                self.setSpeed(v_speed, w_speed)
+
+                if abs(distance) < 100 and abs(diff) < 25000:
+                    self.setSpeed(0, 0)
+                    finished = True
+
+            else:
+                print("REVISAR NO BOLA")
 
         return finished 
 
