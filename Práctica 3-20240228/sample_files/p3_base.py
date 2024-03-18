@@ -15,19 +15,21 @@ def main(args):
 
         # Initialize Odometry. Default value will be 0,0,0
         robot = Robot() 
+        finished = False
         # 1. launch updateOdometry thread()
         robot.startOdometry()
 
+        while not finished:
         # 2. Loop running the tracking until ??, then catch the ball
         # TO-DO: ADD to the Robot class a method to track an object, given certain parameters
         # for example the different target properties we want (size, position, color, ..)
         # or a boolean to indicate if we want the robot to catch the object or not
         # At least COLOR, the rest are up to you, but always put a default value.
-        res = robot.trackObject()
+            res = robot.trackObject()
 
-        print(res)
-        if res:
-          robot.catch()
+            print(res)
+            if res:
+                finished = robot.catch()
 
         # 3. wrap up and close stuff ...
         # This currently unconfigure the sensors, disable the motors, 

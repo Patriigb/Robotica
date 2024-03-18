@@ -20,8 +20,8 @@ def detectBlob(img_BGR):
 
     # Filter by Area
     params.filterByArea = True
-    params.minArea = 200
-    params.maxArea = 60000
+    params.minArea = 100
+    params.maxArea = 30000
 
     params.filterByCircularity = False
     params.filterByColor = False
@@ -36,11 +36,11 @@ def detectBlob(img_BGR):
         detector = cv2.SimpleBlobDetector_create(params)
 
     # Mask for red 
-    redMin = (0, 100, 80)
+    redMin = (0, 80, 50)
     redMax = (10, 255, 255)
 
     # Mask for red in the other side of the color space
-    redMin2 = (170, 100, 80)
+    redMin2 = (170, 80, 50)
     redMax2 = (180, 255, 255)
 
     mask_red=cv2.inRange(img_HSV, redMin, redMax)
@@ -75,12 +75,12 @@ def  draw_blobs(img_BGR, keypoints_red, im_with_keypoints):
     """Draws a list of keypoints on an image."""
     
     
-    AREA = 50000
+    AREA = 12000
     kp = keypoints_red[0]
 
     # Centro de la imagen
     h, w = img_BGR.shape[:2]
-    center = (w // 2 - 50, h // 2 + 100)
+    center = (w // 2 - 20, h // 2 + 50)
     print("Centro de la imagen", center)
     # Dibujar el centro
     cv2.circle(im_with_keypoints, center, 2, (0, 0, 0), -1)
@@ -147,6 +147,8 @@ def calibrar():
         # Read image
         img_BGR = cv2.imread("../fotos/" + archivo)
 
+        img_BGR = cv2.resize(img_BGR, (352, 240))
+
         # Detect blobs
         img_BGR, im_with_keypoints, keypoints_red, mask_red = detectBlob(img_BGR)
         
@@ -172,4 +174,67 @@ def calibrar():
         # Show mask and blobs found 
         cv2.imshow("Keypoints on RED", im_with_keypoints)
         cv2.waitKey(delay=1)
+
+# PRUEBA:
+# Obtener la lista de archivos en la carpeta
+def calibrarFoto():
+    
+    # Read image
+    img_BGR = cv2.imread("../fotos/abajo.jpg")
+
+    img_BGR = cv2.resize(img_BGR, (352, 240))
+
+    # Detect blobs
+    img_BGR, im_with_keypoints, keypoints_red, mask_red = detectBlob(img_BGR)
+    
+
+    if keypoints_red:
+        distancia, area = draw_blobs(img_BGR, keypoints_red, im_with_keypoints)
+        if distancia < 0: 
+            print("direccion izquierda")
+        else:
+            print("direccion derecha")
+    else:
+        # Buscar píxeles rojos a la izquierda o derecha de la imagen
+        left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
+        right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
+
+        if left_red_pixels > 0:
+            print("Píxeles rojos encontrados a la izquierda de la imagen")
+        elif right_red_pixels > 0:
+            print("Píxeles rojos encontrados a la derecha de la imagen")
+        else:
+            print("No hay")
+
+    # Obtén las dimensiones de la imagen
+    alto, ancho, _ = img_BGR.shape
+
+    # Definir la región de interés (ROI) como la mitad inferior de la imagen
+    mitad_inferior = img_BGR[alto//2:alto, :]
+
+    # Convertir la imagen a espacio de color HSV
+    hsv = cv2.cvtColor(mitad_inferior, cv2.COLOR_BGR2HSV)
+
+    # Mask for red 
+    redMin = (0, 80, 50)
+    redMax = (10, 255, 255)
+
+    # Mask for red in the other side of the color space
+    redMin2 = (170, 80, 50)
+    redMax2 = (180, 255, 255)
+
+    mask_red=cv2.inRange(hsv, redMin, redMax)
+    mask_red2=cv2.inRange(hsv, redMin2, redMax2)
+    mask_red3 = mask_red + mask_red2
+
+    # Contar el número de píxeles rojos en la mitad inferior
+    cantidad_pixeles_rojos = cv2.countNonZero(mask_red3)
+
+    # Mostrar la cantidad de píxeles rojos
+    print("Cantidad de píxeles rojos en la mitad inferior:", cantidad_pixeles_rojos)
+    print("Shape mitad_inf", mitad_inferior.shape)
+
+    # Show mask and blobs found 
+    cv2.imshow("Keypoints on RED", im_with_keypoints)
+    cv2.waitKey(delay=1)
 

@@ -35,7 +35,7 @@ class Robot:
 
         self.log_file = None
 
-        self.area = 50000
+        self.area = 12000
 
         # Motors and sensors setup
 
@@ -207,11 +207,14 @@ class Robot:
         targetFound = False 
         targetPositionReached = False 
         frame = cv2.VideoCapture(0)
-        izquierda, derecha, hay_bola = False, False, False
+        izquierda = True
+        diff_ant = 10000
+        cerca = False
         while not finished: 
         # 1. search the most promising blob 
             # Capturar imagen
             ret, img_BGR = frame.read()
+            img_BGR = cv2.resize(img_BGR, (352, 240))
 
             # calcular blob en la imagen (get_color_blobs)
             img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR)
@@ -230,95 +233,52 @@ class Robot:
             # Calcular areas y distancias
             if kp:
                 
-                distance, diff, x, w = cc.computeDistances(img_BGR, self.area, kp)
-              
+                distance, diff, _, _ = cc.computeDistances(img_BGR, self.area, kp)
+                
                 w_speed = 0
                 v_speed = 0
-                if abs(distance) >= 100:
-                    w_speed = abs(distance) / 1500
+                if abs(distance) >= 40:
+                    w_speed = abs(distance) / 500
                     if distance > 0:
                         w_speed = 0 - w_speed
-                  
-                if abs(diff) >= 25000: # que esté centrado
-                    v_speed = diff / 5000
+                        izquierda = False
+                    else:
+                        izquierda = True
+                    
+                # if diff_ant + 3000 < diff:
+                #     cerca = True
+                
+                if abs(diff) >= 4000 and not (): # que esté centrado
+                    v_speed = diff / 1500
                     
                 self.setSpeed(v_speed, w_speed)
                     
-                if abs(distance) < 100 and abs(diff) < 25000: # que esté lo suficientemente cerca
+                if abs(distance) < 40 and (abs(diff) < 4000): # que esté lo suficientemente cerca
                     self.setSpeed(0, 0)
                     # cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
                     finished = True
-
-                # Establecemos si la bola está a la izquierda o a la derecha
-                if x < w//2:
-                    izquierda = True
-                    derecha = False 
-                    hay_bola = True
-                    print("-- BOLA EN LA IZQUIERDA --")
                 
-                elif x > w//2:
-                    derecha = True
-                    izquierda = False
-                    hay_bola = True
-                    print("-- BOLA EN LA DERECHA --")
-
-                else :
-                    izquierda = False
-                    derecha = False
-                    hay_bola = True
-                    print("-- BOLA EN EL CENTRO --")
+                diff_ant = diff
                 
             else:
-                hay_bola = False
                 # Buscar píxeles rojos a la izquierda o derecha de la imagen
                 left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
                 right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
 
                 # if left_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la izquierda de la imagen")
+                #     self.setSpeed(0, 0.3)
                 # elif right_red_pixels > 100:
                 #     print("Píxeles rojos encontrados a la derecha de la imagen")
+                #     self.setSpeed(0, -0.3)
                 # else:
-                #     print("No hay")
-             # capturar imagen
-                    
-            # Se comprueba si la bola está a la izquierda o a la derecha y si no está se establece la velocidad para girar
-            if not hay_bola:
+                print("No hay")
                 if izquierda:
-                    print("Girar a la izquierda")
-                    self.setSpeed(0, 0.3)
-                elif derecha:
-                    print("Girar a la derecha")
-                    self.setSpeed(0, -0.3)
+                    self.setSpeed(0, 1)
                 else:
-                    print("No hay bola")
-                    # self.setSpeed(0, 0)
+                    self.setSpeed(0, -1)
 
-            ret, img_BGR = frame.read()
-
-            # diviidr la imagen en dos mitades con una linea vertical
-            cv2.line(img_BGR, img_BGR.shape[1]//2, 0, img_BGR.shape[1]//2, img_BGR.shape[0], (0, 255, 0), 2)
-
-            kp = (img_BGR.shape[1]//4, img_BGR.shape[0]//2)
-
-            if kp:
-                distance = kp[0] - img_BGR.shape[1]//2
-                diff, w_speed, v_speed = 0, 0, 0
-                if abs(distance) >= 100:
-                    w_speed = abs(distance) / 1500
-                    if distance > 0:
-                        w_speed = 0 - w_speed
-                if abs(diff) >= 25000:
-                    v_speed = diff / 5000
-
-                self.setSpeed(v_speed, w_speed)
-
-                if abs(distance) < 100 and abs(diff) < 25000:
-                    self.setSpeed(0, 0)
-                    finished = True
-
-            else:
-                print("REVISAR NO BOLA")
+        frame.release()
 
         return finished 
 
@@ -327,8 +287,8 @@ class Robot:
         # decide the strategy to catch the ball once you have reached the target position 
         # Avanzar un poco
         print("catch")
-        self.setSpeed(3, 0)
-        time.sleep(1.7)
+        self.setSpeed(4, 0)
+        time.sleep(2.5)
         self.setSpeed(0, 0)
         # Girar el motor de la cesta
         
@@ -337,5 +297,49 @@ class Robot:
         self.BP.set_motor_dps(self.BP.PORT_B, speedDPS)
         time.sleep(0.7)
         self.BP.set_motor_dps(self.BP.PORT_B, 0)
+
+        # Comprobar que tiene la bola
+        self.setSpeed(4, 0)
+        time.sleep(2.5)
+        self.setSpeed(0, 0)
+
+        frame = cv2.VideoCapture(0)
+        ret, img_BGR = frame.read()
+
+        # Obtén las dimensiones de la imagen
+        alto, ancho, _ = img_BGR.shape
+
+        # Definir la región de interés (ROI) como la mitad inferior de la imagen
+        mitad_inferior = img_BGR[alto//2:alto, :]
+
+        # Convertir la imagen a espacio de color HSV
+        hsv = cv2.cvtColor(mitad_inferior, cv2.COLOR_BGR2HSV)
+
+        # Mask for red 
+        redMin = (0, 80, 50)
+        redMax = (10, 255, 255)
+
+        # Mask for red in the other side of the color space
+        redMin2 = (170, 80, 50)
+        redMax2 = (180, 255, 255)
+
+        mask_red=cv2.inRange(hsv, redMin, redMax)
+        mask_red2=cv2.inRange(hsv, redMin2, redMax2)
+        mask_red3 = mask_red + mask_red2
+
+        # Contar el número de píxeles rojos en la mitad inferior
+        cantidad_pixeles_rojos = cv2.countNonZero(mask_red3)
+
+        # Mostrar la cantidad de píxeles rojos
+        print("Cantidad de píxeles rojos en la mitad inferior:", cantidad_pixeles_rojos)
+        print("Shape mitad_inf", mitad_inferior.shape)
+
+        if cantidad_pixeles_rojos >= 5000:
+            return True
+        else 
+            speedDPS = 0 - np.rad2deg(np.pi/2)
+            self.BP.set_motor_dps(self.BP.PORT_B, speedDPS)
+            time.sleep(0.7)
+            self.BP.set_motor_dps(self.BP.PORT_B, 0)
+            return False
         
-        return True
