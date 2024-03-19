@@ -19,10 +19,10 @@ img_BGR = cv2.resize(frame, (352, 240))
 #gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 #cv2.imshow('frame', gray)
 
-img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR)
-distancia, area = cc.draw_blobs(img_BGR, keypoints_red, im_with_keypoints)
-cv2.waitKey(0)
-print(distancia, area)
+# img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR)
+# distancia, area, _, _ = cc.draw_blobs(img_BGR, keypoints_red, im_with_keypoints)
+# cv2.waitKey(0)
+# print(distancia, area)
 
 cv2.imshow('frame', frame)
 

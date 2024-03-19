@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import os
 
-def detectBlob(img_BGR):
+def detectBlob(img_BGR, cmin1, cmax1, cmin2, cmax2):
 
     # HSV image
     img_HSV = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2HSV)
@@ -36,12 +36,12 @@ def detectBlob(img_BGR):
         detector = cv2.SimpleBlobDetector_create(params)
 
     # Mask for red 
-    redMin = (0, 80, 50)
-    redMax = (10, 255, 255)
+    redMin = cmin1
+    redMax = cmax1
 
     # Mask for red in the other side of the color space
-    redMin2 = (170, 80, 50)
-    redMax2 = (180, 255, 255)
+    redMin2 = cmin2
+    redMax2 = cmax2
 
     mask_red=cv2.inRange(img_HSV, redMin, redMax)
     mask_red2=cv2.inRange(img_HSV, redMin2, redMax2)
@@ -180,7 +180,7 @@ def calibrar():
 def calibrarFoto():
     
     # Read image
-    img_BGR = cv2.imread("../fotos/abajo.jpg")
+    img_BGR = cv2.imread("prueba.jpg")
 
     img_BGR = cv2.resize(img_BGR, (352, 240))
 
@@ -238,3 +238,4 @@ def calibrarFoto():
     cv2.imshow("Keypoints on RED", im_with_keypoints)
     cv2.waitKey(delay=1)
 
+#calibrarFoto()

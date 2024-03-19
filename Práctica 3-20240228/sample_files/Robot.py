@@ -202,7 +202,8 @@ class Robot:
         self.BP.reset_all()
 
 
-    def trackObject(self, colorRangeMin=[0,0,0], colorRangeMax=[255,255,255]):
+    def trackObject(self, colorRangeMin1=(0, 110, 100), colorRangeMax1=(7, 255, 255),
+                    colorRangeMin2=(170, 110, 100), colorRangeMax2=(180, 255, 255)):
         finished = False 
         targetFound = False 
         targetPositionReached = False 
@@ -217,7 +218,9 @@ class Robot:
             img_BGR = cv2.resize(img_BGR, (352, 240))
 
             # calcular blob en la imagen (get_color_blobs)
-            img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR)
+            img_BGR, im_with_keypoints, keypoints_red, mask_red = cc.detectBlob(img_BGR, colorRangeMin1, 
+                                                                                colorRangeMax1, colorRangeMin2,
+                                                                                colorRangeMax2)
 
             # Si hay más de un blob, seleccionar el más grande
             if keypoints_red:
@@ -254,8 +257,10 @@ class Robot:
                 self.setSpeed(v_speed, w_speed)
                     
                 if abs(distance) < 40 and (abs(diff) < 4000): # que esté lo suficientemente cerca
-                    self.setSpeed(0, 0)
                     # cc.draw_blobs(img_BGR, keypoints_red,im_with_keypoints)
+                    self.setSpeed(0, 0.2)
+                    time.sleep(1)
+                    self.setSpeed(0, 0)
                     finished = True
                 
                 diff_ant = diff
@@ -283,24 +288,26 @@ class Robot:
         return finished 
 
 
-    def catch(self): 
+    def catch(self, colorRangeMin1=(0, 90, 80), colorRangeMax1=(10, 255, 255),
+                    colorRangeMin2=(170, 90, 80), colorRangeMax2=(180, 255, 255)): 
         # decide the strategy to catch the ball once you have reached the target position 
         # Avanzar un poco
         print("catch")
+        
         self.setSpeed(4, 0)
-        time.sleep(2.5)
+        time.sleep(2.7)
         self.setSpeed(0, 0)
         # Girar el motor de la cesta
         
         speedDPS = np.rad2deg(np.pi/2)
         
         self.BP.set_motor_dps(self.BP.PORT_B, speedDPS)
-        time.sleep(0.7)
+        time.sleep(1)
         self.BP.set_motor_dps(self.BP.PORT_B, 0)
 
         # Comprobar que tiene la bola
-        self.setSpeed(4, 0)
-        time.sleep(2.5)
+        self.setSpeed(-2, 0.3)
+        time.sleep(2)
         self.setSpeed(0, 0)
 
         frame = cv2.VideoCapture(0)
@@ -316,12 +323,12 @@ class Robot:
         hsv = cv2.cvtColor(mitad_inferior, cv2.COLOR_BGR2HSV)
 
         # Mask for red 
-        redMin = (0, 80, 50)
-        redMax = (10, 255, 255)
+        redMin = colorRangeMin1
+        redMax = colorRangeMax1
 
         # Mask for red in the other side of the color space
-        redMin2 = (170, 80, 50)
-        redMax2 = (180, 255, 255)
+        redMin2 = colorRangeMin2
+        redMax2 = colorRangeMax2
 
         mask_red=cv2.inRange(hsv, redMin, redMax)
         mask_red2=cv2.inRange(hsv, redMin2, redMax2)
@@ -334,12 +341,12 @@ class Robot:
         print("Cantidad de píxeles rojos en la mitad inferior:", cantidad_pixeles_rojos)
         print("Shape mitad_inf", mitad_inferior.shape)
 
-        if cantidad_pixeles_rojos >= 5000:
+        if cantidad_pixeles_rojos >= 700:
             return True
-        else 
+        else: 
             speedDPS = 0 - np.rad2deg(np.pi/2)
             self.BP.set_motor_dps(self.BP.PORT_B, speedDPS)
-            time.sleep(0.7)
+            time.sleep(1)
             self.BP.set_motor_dps(self.BP.PORT_B, 0)
             return False
         
