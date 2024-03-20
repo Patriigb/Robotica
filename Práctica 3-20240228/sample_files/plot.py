@@ -1,6 +1,12 @@
 import matplotlib.pyplot as plt
 import sys
 
+"""
+    This script is used to plot the results of a robot's movements
+    arg1: log file to plot
+    arg2: plot file
+"""
+
 # Leer el archivo y extraer los datos
 timestamps = []
 x_coords = []

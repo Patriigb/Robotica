@@ -7,6 +7,16 @@ import numpy as np
 import os
 
 def detectBlob(img_BGR, cmin1, cmax1, cmin2, cmax2):
+    """ 
+        Detects a blob in an image using the given color range.
+        
+        Parameters:
+            img_BGR: The input BGR image to be processed.
+            cmin1, cmax1: Minimum and maximum HSV values for the first channel of the color range
+            cmin2, cmax2: Minimum and maximum HSV values for the second channel of the color range 
+ 
+    """
+
 
     # HSV image
     img_HSV = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2HSV)
@@ -72,7 +82,14 @@ def detectBlob(img_BGR, cmin1, cmax1, cmin2, cmax2):
 
 
 def  draw_blobs(img_BGR, keypoints_red, im_with_keypoints):
-    """Draws a list of keypoints on an image."""
+    """
+        Draws a list of keypoints on an image.
+        Parameters:
+            img_BGR : The original BGR image.
+            keypoints_red : A list of keypoint objects.
+            im_with_keypoints : An image with drawn keypoints.
+    
+    """
     
     
     AREA = 12000
@@ -115,6 +132,16 @@ def  draw_blobs(img_BGR, keypoints_red, im_with_keypoints):
     return distance, diff
 
 def computeDistances(img_BGR, r_area, kp):
+    """
+        Computes distances between the centroid of the red blob
+        and the center of the camera
+
+        Parameters:
+            img_BGR : BGR image to process
+            r_area : Area of the red object
+            kp : Keypoints
+
+    """
     # Centro de la imagen
     h, w = img_BGR.shape[:2]
     center = (w // 2 - 50, h // 2 + 100)
@@ -142,6 +169,10 @@ def computeDistances(img_BGR, r_area, kp):
 # PRUEBA:
 # Obtener la lista de archivos en la carpeta
 def calibrar():
+    """
+        Test function to detect blobs in all the photos
+        in a folder and compute their distance from the camera's center.
+    """
     archivos = os.listdir("../fotos")
     for archivo in archivos:
         # Read image
@@ -178,7 +209,10 @@ def calibrar():
 # PRUEBA:
 # Obtener la lista de archivos en la carpeta
 def calibrarFoto():
-    
+    """
+        Test function to detect blobs in a specific
+        photo and detect red pixels at the bottom of it
+    """
     # Read image
     img_BGR = cv2.imread("prueba.jpg")
 

@@ -204,6 +204,10 @@ class Robot:
 
     def trackObject(self, colorRangeMin1=(0, 110, 100), colorRangeMax1=(7, 255, 255),
                     colorRangeMin2=(170, 110, 100), colorRangeMax2=(180, 255, 255)):
+        """
+        This method is used for tracking an object in the scene using a camera
+        """
+        
         finished = False 
         targetFound = False 
         targetPositionReached = False 
@@ -247,9 +251,7 @@ class Robot:
                         izquierda = False
                     else:
                         izquierda = True
-                    
-                # if diff_ant + 3000 < diff:
-                #     cerca = True
+
                 
                 if abs(diff) >= 4000 and not (): # que esté centrado
                     v_speed = diff / 1500
@@ -270,13 +272,7 @@ class Robot:
                 left_red_pixels = np.sum(mask_red[:, :mask_red.shape[1]//2])
                 right_red_pixels = np.sum(mask_red[:, mask_red.shape[1]//2:])
 
-                # if left_red_pixels > 100:
-                #     print("Píxeles rojos encontrados a la izquierda de la imagen")
-                #     self.setSpeed(0, 0.3)
-                # elif right_red_pixels > 100:
-                #     print("Píxeles rojos encontrados a la derecha de la imagen")
-                #     self.setSpeed(0, -0.3)
-                # else:
+                
                 print("No hay")
                 if izquierda:
                     self.setSpeed(0, 1)
@@ -290,6 +286,11 @@ class Robot:
 
     def catch(self, colorRangeMin1=(0, 90, 80), colorRangeMax1=(10, 255, 255),
                     colorRangeMin2=(170, 90, 80), colorRangeMax2=(180, 255, 255)): 
+        """
+            Catches the object of interest in the scene and checks it 
+            has catched it
+        """
+        
         # decide the strategy to catch the ball once you have reached the target position 
         # Avanzar un poco
         print("catch")
