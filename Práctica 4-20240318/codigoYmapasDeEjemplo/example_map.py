@@ -35,6 +35,7 @@ def main(args):
 
         # 1. load map and compute costs and path
         myMap = Map2D(map_file)
+        myMap.fillCostMatrix(0,0,2,0)
         #myMap.verbose = True
         myMap.drawMap(saveSnapshot=False)
 

@@ -245,7 +245,7 @@ class Robot:
                 w_speed = 0
                 v_speed = 0
                 if abs(distance) >= 40:
-                    w_speed = abs(distance) / 500
+                    w_speed = abs(distance) / 400
                     if distance > 0:
                         w_speed = 0 - w_speed
                         izquierda = False
@@ -254,7 +254,7 @@ class Robot:
 
                 
                 if abs(diff) >= 4000 and not (): # que esté centrado
-                    v_speed = diff / 1500
+                    v_speed = diff / 750
                     
                 self.setSpeed(v_speed, w_speed)
                     
@@ -278,6 +278,7 @@ class Robot:
                     self.setSpeed(0, 1)
                 else:
                     self.setSpeed(0, -1)
+            time.sleep(0.05)
 
         frame.release()
 

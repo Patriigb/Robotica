@@ -8,6 +8,7 @@ from matplotlib import animation
 import numpy as np
 import time
 import os
+from collections import deque
 
 class Map2D:
     def __init__(self, map_description_file):
@@ -396,14 +397,14 @@ class Map2D:
     # NOTE: Make sure self.costMatrix is a 2D numpy array of dimensions dimX x dimY
     # TO-DO
     # """
-        wavefront = deque([x_end, y_end])  # Inicializar la cola con la celda objetivo
-    
+        wavefront = deque([(x_end, y_end)])  # Inicializar la cola con la celda objetivo
+        print((x_end, y_end))
 
         self.costMatrix[x_end, y_end] = 0
 
         # Propagar el frente de onda hasta que esté terminado
         while wavefront:
-            cell = wavefront.popleft()  # Obtener la celda actual desde el frente de onda
+            cell = wavefront.pop() # Obtener la celda actual desde el frente de onda
             wavefront_value = self.costMatrix[cell[0], cell[1]]  # Obtener el valor del frente de onda en la celda actual
             
             # Propagar el frente de onda a los vecinos de la celda actual
